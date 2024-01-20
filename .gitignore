@@ -3,6 +3,11 @@ build/
 *.wad
 *.pdx
 
+# CMake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+
 # IDEs
 .vscode
 .idea/

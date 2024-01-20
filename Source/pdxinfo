@@ -1,0 +1,5 @@
+name=DOOMDate
+author=id Software, Fabian Hartmann
+description=A DOOM port for the Playdate handheld gaming console
+bundleID=pizza.rotten.doomdate
+imagePath=
