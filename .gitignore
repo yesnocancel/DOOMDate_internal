@@ -1,12 +1,16 @@
 # Project artifacts
 build/
+Testing/
+Source/*.dylib
 *.wad
 *.pdx
 
 # CMake
+.cmake/
 CMakeFiles/
 CMakeCache.txt
 cmake_install.cmake
+Makefile
 
 # IDEs
 .vscode
