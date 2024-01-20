@@ -1,8 +1,6 @@
 #include "playdate.h"
 #include "playdate_sys.h"
 
-#include "DOOM.h"
-
 void register_playdate_sys_functions(void) {
     doom_set_print(playdate_printfn);
     doom_set_malloc(playdate_malloc, playdate_free);

@@ -4,6 +4,7 @@
 #define _CRT_NONSTDC_NO_DEPRECATE
 #endif
 
+#include <string.h>
 #include "DOOM.h"
 
 #include "d_main.h"
@@ -52,63 +53,9 @@ void I_UpdateSound();
 unsigned long I_TickSong();
 
 
-#if defined(DOOM_IMPLEMENT_PRINT)
-#include <stdio.h>
-static void doom_print_impl(const char* str)
-{
-    printf("%s", str);
-}
-#else
 static void doom_print_impl(const char* str) {}
-#endif
-
-#if defined(DOOM_IMPLEMENT_MALLOC)
-#include <stdlib.h>
-static void* doom_malloc_impl(int size)
-{
-    return malloc((size_t)size);
-}
-static void doom_free_impl(void* ptr)
-{
-    free(ptr);
-}
-#else
 static void* doom_malloc_impl(int size) { return 0; }
 static void doom_free_impl(void* ptr) {}
-#endif
-
-
-#if defined(DOOM_IMPLEMENT_FILE_IO)
-#include <stdio.h>
-void* doom_open_impl(const char* filename, const char* mode)
-{
-    return fopen(filename, mode);
-}
-void doom_close_impl(void* handle)
-{
-    fclose(handle);
-}
-int doom_read_impl(void* handle, void *buf, int count)
-{
-    return (int)fread(buf, 1, count, handle);
-}
-int doom_write_impl(void* handle, const void *buf, int count)
-{
-    return (int)fwrite(buf, 1, count, handle);
-}
-int doom_seek_impl(void* handle, int offset, doom_seek_t origin)
-{
-    return fseek(handle, offset, origin);
-}
-int doom_tell_impl(void* handle)
-{
-    return (int)ftell(handle);
-}
-int doom_eof_impl(void* handle)
-{
-    return feof(handle);
-}
-#else
 void* doom_open_impl(const char* filename, const char* mode)
 {
     return 0;
@@ -134,168 +81,59 @@ int doom_eof_impl(void* handle)
 {
     return 1;
 }
-#endif
-
-
-#if defined(DOOM_IMPLEMENT_GETTIME)
-#if defined(WIN32)
-#include <winsock.h>
-#else
-#include <sys/time.h>
-#endif
-void doom_gettime_impl(int* sec, int* usec)
-{
-#if defined(WIN32)
-    static const unsigned long long EPOCH = ((unsigned long long)116444736000000000ULL);
-    SYSTEMTIME system_time;
-    FILETIME file_time;
-    unsigned long long time;
-    GetSystemTime(&system_time);
-    SystemTimeToFileTime(&system_time, &file_time);
-    time = ((unsigned long long)file_time.dwLowDateTime);
-    time += ((unsigned long long)file_time.dwHighDateTime) << 32;
-    *sec = (int)((time - EPOCH) / 10000000L);
-    *usec = (int)(system_time.wMilliseconds * 1000);
-#else
-    struct timeval tp;
-    struct timezone tzp;
-    gettimeofday(&tp, &tzp);
-    *sec = tp.tv_sec;
-    *usec = tp.tv_usec;
-#endif
-}
-#else
 void doom_gettime_impl(int* sec, int* usec)
 {
     *sec = 0;
     *usec = 0;
 }
-#endif
-
-
-#if defined(DOOM_IMPLEMENT_EXIT)
-#include <stdlib.h>
-void doom_exit_impl(int code)
-{
-    exit(code);
-}
-#else
 void doom_exit_impl(int code) {}
-#endif
-
-
-#if defined(DOOM_IMPLEMENT_GETENV)
-#include <stdlib.h>
-char* doom_getenv_impl(const char* var)
-{
-    return getenv(var);
-}
-#else
 char* doom_getenv_impl(const char* var) {}
-#endif
-
 
 void doom_memset(void* ptr, int value, int num)
 {
-    unsigned char* p = ptr;
-    for (int i = 0; i < num; ++i, ++p)
-    {
-        *p = (unsigned char)value;
-    }
+    memset(ptr, value, num);
 }
 
 
 void* doom_memcpy(void* destination, const void* source, int num)
 {
-    unsigned char* dst = destination;
-    const unsigned char* src = source;
-
-    for (int i = 0; i < num; ++i, ++dst, ++src)
-    {
-        *dst = *src;
-    }
-
-    return destination;
+    return memcpy(destination, source, num);
 }
 
 
 int doom_strlen(const char* str)
 {
-    int len = 0;
-    while (*str++) ++len;
-    return len;
+    return strlen(str);
 }
 
 
 char* doom_concat(char* dst, const char* src)
 {
-    char* ret = dst;
-    dst += doom_strlen(dst);
-
-    while (*src) *dst++ = *src++;
-    *dst = *src; // \0
-
-    return ret;
+    return strcat(dst, src);
 }
 
 
 char* doom_strcpy(char* dst, const char* src)
 {
-    char* ret = dst;
-
-    while (*src) *dst++ = *src++;
-    *dst = *src; // \0
-
-    return ret;
+    return strcpy(dst, src);
 }
 
 
 char* doom_strncpy(char* dst, const char* src, int num)
 {
-    int i = 0;
-
-    for (; i < num; ++i)
-    {
-        if (!src[i]) break;
-        dst[i] = src[i];
-    }
-
-    while (i < num) dst[i++] = '\0';
-
-    return dst;
+    return stpncpy(dst, src, num);
 }
 
 
 int doom_strcmp(const char* str1, const char* str2)
 {
-    int ret = 0;
-
-    while (!(ret = *(unsigned char*)str1 - *(unsigned char*) str2) && *str1)
-        ++str1, ++str2;
-
-    if (ret < 0)
-        ret = -1;
-    else if (ret > 0)
-        ret = 1;
-
-    return (ret);
+    return strcmp(str1, str2);
 }
 
 
 int doom_strncmp(const char* str1, const char* str2, int n)
 {
-    int ret = 0;
-    int count = 1;
-
-    while (!(ret = *(unsigned char*)str1 - *(unsigned char*) str2) && *str1 && count++ < n)
-        ++str1, ++str2;
-
-    if (ret < 0)
-        ret = -1;
-    else if (ret > 0)
-        ret = 1;
-
-    return (ret);
+    return strncmp(str1, str2, n);
 }
 
 
@@ -308,34 +146,13 @@ int doom_toupper(int c)
 
 int doom_strcasecmp(const char* str1, const char* str2)
 {
-    int ret = 0;
-
-    while (!(ret = doom_toupper(*(unsigned char*)str1) - doom_toupper(*(unsigned char*)str2)) && *str1)
-        ++str1, ++str2;
-
-    if (ret < 0)
-        ret = -1;
-    else if (ret > 0)
-        ret = 1;
-
-    return (ret);
+    return strcasecmp(str1, str2);
 }
 
 
 int doom_strncasecmp(const char* str1, const char* str2, int n)
 {
-    int ret = 0;
-    int count = 1;
-
-    while (!(ret = doom_toupper(*(unsigned char*)str1) - doom_toupper(*(unsigned char*)str2)) && *str1 && count++ < n)
-        ++str1, ++str2;
-
-    if (ret < 0)
-        ret = -1;
-    else if (ret > 0)
-        ret = 1;
-
-    return (ret);
+    return strncasecmp(str1, str2, n);
 }
 
 
