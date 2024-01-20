@@ -1,5 +1,3 @@
-![](images/PureDOOM.png)
-
 # Pure DOOM
 Header only, no dependencies DOOM source port. Designed to run on any devices.
 
