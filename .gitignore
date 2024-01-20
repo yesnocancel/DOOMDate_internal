@@ -1,7 +1,11 @@
+# Project artifacts
 build/
 *.wad
-.doomrc
-references/
-.DS_Store
+*.pdx
+
+# IDEs
 .vscode
-*.DLL
+.idea/
+
+# Other stuff
+.DS_Store
