@@ -4,6 +4,7 @@ Testing/
 Source/*.dylib
 *.wad
 *.pdx
+*.elf
 
 # CMake
 .cmake/
