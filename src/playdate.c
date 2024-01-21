@@ -1,7 +1,6 @@
 #include "playdate.h"
 #include "playdate_sys.h"
 
-#define DOOM_IMPLEMENTATION
 #include "DOOM.h"
 #include "doomdef.h"
 
