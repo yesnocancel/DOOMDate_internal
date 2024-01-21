@@ -88,7 +88,6 @@ typedef struct
 // A quick hack to establish a protocol between
 // synchronous mix buffer updates and asynchronous
 // audio writes. Probably redundant with gametic.
-static int flag = 0;
 
 static unsigned char* mus_data = 0;
 static mus_header_t mus_header;
@@ -99,7 +98,6 @@ static doom_boolean mus_playing = false;
 static int mus_volume = 127;
 static int mus_channel_volumes[16] = { 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127 };
 
-static int looping = 0;
 static int musicdies = -1;
 
 
@@ -162,7 +160,7 @@ int queue_midi_head = 0;
 int queue_midi_tail = 0;
 
 
-void TickSong();
+void TickSong(void);
 
 
 //
@@ -361,7 +359,7 @@ int addsfx(int sfxid, int volume, int step, int seperation)
 // version.
 // See soundserver initdata().
 //
-void I_SetChannels()
+void I_SetChannels(void)
 {
     // Init internal lookups (raw data, mixing buffer, channels).
     // This function sets up internal lookups used during
@@ -746,8 +744,6 @@ int I_SoundIsPlaying(int handle)
 //
 void I_UpdateSound(void)
 {
-    static int song_tick_progress = 0;
-
     // Mix current sound data.
     // Data, from raw sound, for right and left.
     register unsigned int sample;
@@ -897,7 +893,7 @@ void I_ShutdownSound(void)
 }
 
 
-void I_InitSound()
+void I_InitSound(void)
 {
     int i;
 
@@ -968,7 +964,7 @@ void I_ResumeSong(int handle)
 }
 
 
-static void reset_all_channels()
+static void reset_all_channels(void)
 {
     for (int i = 0; i < 16; ++i)
         queued_midi_msgs[(queue_midi_tail++) % MAX_QUEUED_MIDI_MSGS] = 0b10110000 | i | (123 << 8);
@@ -1013,7 +1009,7 @@ int I_QrySongPlaying(int handle)
 }
 
 
-unsigned long I_TickSong()
+unsigned long I_TickSong(void)
 {
     unsigned long midi_event = 0;
 
@@ -1143,7 +1139,7 @@ unsigned long I_TickSong()
             }
             case EVENT_UNUSED:
             {
-                int dummy = (int)mus_data[mus_offset++];
+                mus_offset++;
                 break;
             }
         }

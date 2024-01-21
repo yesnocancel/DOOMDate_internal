@@ -49,8 +49,8 @@ doom_getenv_fn doom_getenv = 0;
 
 void D_DoomLoop(void);
 void D_UpdateWipe(void);
-void I_UpdateSound();
-unsigned long I_TickSong();
+void I_UpdateSound(void);
+unsigned long I_TickSong(void);
 
 
 static void doom_print_impl(const char* str) {}
@@ -87,7 +87,7 @@ void doom_gettime_impl(int* sec, int* usec)
     *usec = 0;
 }
 void doom_exit_impl(int code) {}
-char* doom_getenv_impl(const char* var) {}
+char* doom_getenv_impl(const char* var) { return 0; }
 
 void doom_memset(void* ptr, int value, int num)
 {
@@ -469,13 +469,13 @@ const unsigned char* doom_get_framebuffer(int channels)
 }
 
 
-unsigned long doom_tick_midi()
+unsigned long doom_tick_midi(void)
 {
     return I_TickSong();
 }
 
 
-short* doom_get_sound_buffer()
+short* doom_get_sound_buffer(void)
 {
     I_UpdateSound();
     return mixbuffer;

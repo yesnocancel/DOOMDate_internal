@@ -174,7 +174,6 @@ void D_Display(void)
     static doom_boolean fullscreen = false;
     static gamestate_t oldgamestate = -1;
     static int borderdrawcount;
-    int wipestart;
     int y;
     doom_boolean wipe;
     doom_boolean redrawsbar;
@@ -299,8 +298,6 @@ void D_Display(void)
 
     // wipe update
     wipe_EndScreen(0, 0, SCREENWIDTH, SCREENHEIGHT);
-
-    wipestart = I_GetTime() - 1;
 
 #if 0 // [pd] Moved to D_UpdateWipe
     do
@@ -644,7 +641,8 @@ void IdentifyVersion(void)
     }
 
     void* f;
-    if (f = doom_open(doom2fwad, "rb"))
+    f = doom_open(doom2fwad, "rb");
+    if (f)
     {
         doom_close(f);
         gamemode = commercial;
@@ -656,7 +654,8 @@ void IdentifyVersion(void)
         return;
     }
 
-    if (f = doom_open(doom2wad, "rb"))
+    f = doom_open(doom2wad, "rb");
+    if (f)
     {
         doom_close(f);
         gamemode = commercial;
@@ -664,7 +663,8 @@ void IdentifyVersion(void)
         return;
     }
 
-    if (f = doom_open(plutoniawad, "rb"))
+    f = doom_open(plutoniawad, "rb");
+    if (f)
     {
         doom_close(f);
         gamemode = commercial;
@@ -672,7 +672,8 @@ void IdentifyVersion(void)
         return;
     }
 
-    if (f = doom_open(tntwad, "rb"))
+    f = doom_open(tntwad, "rb");
+    if (f)
     {
         doom_close(f);
         gamemode = commercial;
@@ -680,7 +681,8 @@ void IdentifyVersion(void)
         return;
     }
 
-    if (f = doom_open(doomuwad, "rb"))
+    f = doom_open(doomuwad, "rb");
+    if (f)
     {
         doom_close(f);
         gamemode = retail;
@@ -688,7 +690,8 @@ void IdentifyVersion(void)
         return;
     }
 
-    if (f = doom_open(doomwad, "rb"))
+    f = doom_open(doomwad, "rb");
+    if (f)
     {
         doom_close(f);
         gamemode = registered;
@@ -696,7 +699,8 @@ void IdentifyVersion(void)
         return;
     }
 
-    if (f = doom_open(doom1wad, "rb"))
+    f = doom_open(doom1wad, "rb");
+    if (f)
     {
         doom_close(f);
         gamemode = shareware;

@@ -49,15 +49,6 @@ doom_boolean mousemoved = false;
 doom_boolean shmFinished;
 
 
-// Blocky mode,
-// replace each 320x200 pixel with multiply*multiply pixels.
-// According to Dave Taylor, it still is a bonehead thing
-// to use ....
-static int multiply = 1;
-static int lastmousex = 0;
-static int lastmousey = 0;
-
-
 void I_ShutdownGraphics(void)
 {
 }

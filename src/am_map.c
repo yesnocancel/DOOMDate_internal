@@ -604,7 +604,6 @@ void AM_maxOutWindowScale(void)
 doom_boolean AM_Responder(event_t* ev)
 {
     int rc;
-    static int cheatstate = 0;
     static int bigstate = 0;
     static char buffer[20];
 
@@ -686,7 +685,6 @@ doom_boolean AM_Responder(event_t* ev)
                 plr->message = AMSTR_MARKSCLEARED;
                 break;
             default:
-                cheatstate = 0;
                 rc = false;
         }
         if (!deathmatch && cht_CheckCheat(&cheat_amap, ev->data1))
@@ -962,8 +960,6 @@ void AM_drawFline(fline_t* fl, int color)
     register int ax;
     register int ay;
     register int d;
-
-    static int fuck = 0;
 
     // For debugging only
 #if 0 // [pd] Don't waste CPU cycles testing this then

@@ -488,11 +488,8 @@ doom_boolean P_LookForPlayers(mobj_t* actor, doom_boolean allaround)
     int c;
     int stop;
     player_t* player;
-    sector_t* sector;
     angle_t an;
     fixed_t dist;
-
-    sector = actor->subsector->sector;
 
     c = 0;
     stop = (actor->lastlook - 1) & 3;

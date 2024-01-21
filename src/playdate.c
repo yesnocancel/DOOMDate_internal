@@ -9,7 +9,7 @@ LCDBitmap* screen_bitmap;
 uint8_t* bw_bitmap;
 
 static int update(void* userdata);
-static void screenBufferToLCDBitmap(const unsigned char* buffer);
+// static void screenBufferToLCDBitmap(const unsigned char* buffer);
 
 int eventHandler(PlaydateAPI* pd, PDSystemEvent event, uint32_t arg)
 {
@@ -22,7 +22,7 @@ int eventHandler(PlaydateAPI* pd, PDSystemEvent event, uint32_t arg)
         playdate->system->resetElapsedTime();
         playdate->display->setRefreshRate(35);
         screen_bitmap = playdate->graphics->newBitmap(SCREENWIDTH, SCREENHEIGHT, kColorWhite);
-        bw_bitmap = playdate_malloc(SCREENWIDTH * SCREENHEIGHT);
+        bw_bitmap = playdate_malloc(sizeof(uint8_t) * SCREENWIDTH * SCREENHEIGHT);
 
         doom_init(1, NULL, 0);
 
@@ -41,6 +41,7 @@ static int update(void* userdata) {
     return 1;
 }
 
+/*
 static void screenBufferToLCDBitmap(const unsigned char* buffer)
 {
     // iterate over Doom's colored bitmap and map each uint32_t pixel to either
@@ -86,3 +87,4 @@ static void screenBufferToLCDBitmap(const unsigned char* buffer)
         screen_data[z] = result;
     }
 }
+*/

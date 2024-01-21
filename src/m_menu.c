@@ -74,7 +74,7 @@ typedef struct menu_s
     short numitems; // # of menu items
     struct menu_s* prevMenu; // previous menu
     menuitem_t* menuitems; // menu items
-    void (*routine)(); // draw routine
+    void (*routine)(void); // draw routine
     short x;
     short y; // x,y of menu
     short lastOn; // last item user was on in menu
@@ -803,7 +803,6 @@ void M_DrawCustomMenuText(char* name, int x, int y)
 void M_ReadSaveStrings(void)
 {
     void* handle;
-    int count;
     int i;
     char name[256];
 
@@ -828,7 +827,7 @@ void M_ReadSaveStrings(void)
             LoadMenu[i].status = 0;
             continue;
         }
-        count = doom_read(handle, &savegamestrings[i], SAVESTRINGSIZE);
+        doom_read(handle, &savegamestrings[i], SAVESTRINGSIZE);
         doom_close(handle);
         LoadMenu[i].status = 1;
     }

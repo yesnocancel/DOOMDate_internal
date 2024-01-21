@@ -186,9 +186,6 @@ void R_DrawColumnInCache(column_t* patch, byte* cache, int originy, int cachehei
     int count;
     int position;
     byte* source;
-    byte* dest;
-
-    dest = (byte*)cache + 3;
 
     while (patch->topdelta != 0xff)
     {
@@ -423,7 +420,6 @@ void R_InitTextures(void)
 
     int* patchlookup;
 
-    int totalwidth;
     int nummappatches;
     int offset;
     int maxoff;
@@ -480,8 +476,6 @@ void R_InitTextures(void)
     texturecompositesize = Z_Malloc(numtextures * sizeof(int), PU_STATIC, 0);
     texturewidthmask = Z_Malloc(numtextures * sizeof(int), PU_STATIC, 0);
     textureheight = Z_Malloc(numtextures * sizeof(fixed_t), PU_STATIC, 0);
-
-    totalwidth = 0;
 
     // Really complex printing shit...
     temp1 = W_GetNumForName("S_START");  // P_???????
@@ -553,7 +547,6 @@ void R_InitTextures(void)
         texturewidthmask[i] = j - 1;
         textureheight[i] = texture->height << FRACBITS;
 
-        totalwidth += texture->width;
     }
 
     Z_Free(maptex1);

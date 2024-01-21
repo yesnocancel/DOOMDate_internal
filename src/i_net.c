@@ -323,7 +323,6 @@ void I_InitNetwork(void)
 #endif
     int i;
     int p;
-    struct hostent* hostentry;        // host information entry
 
     doomcom = doom_malloc(sizeof(*doomcom));
     doom_memset(doomcom, 0, sizeof(*doomcom));
