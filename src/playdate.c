@@ -1,15 +1,55 @@
 #include "playdate.h"
 #include "playdate_sys.h"
+#include <stdio.h>
 
 #include "DOOM.h"
 #include "doomdef.h"
+#include "doom_config.h"
 
 PlaydateAPI* playdate = NULL;
 LCDBitmap* screen_bitmap;
-uint8_t* bw_bitmap;
 
 static int update(void* userdata);
-// static void screenBufferToLCDBitmap(const unsigned char* buffer);
+static void handleInputs(void);
+static void screenBufferToLCDBitmap(const unsigned char* buffer);
+
+static uint8_t playdatePaletteOriginal[256] = {
+        0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,
+        1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+        1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+        1,1,1,0,0,0,0,0,1,1,1,1,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+        1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,
+        1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,
+        1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0
+};
+
+static uint8_t playdatePaletteOptimized[256] = {
+        0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,
+        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,
+        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,
+        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,
+        1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,
+        1,1,1,1,1,0,0,0,1,1,1,1,0,0,0,0,
+        1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,
+        1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,
+        1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,
+        1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1
+};
 
 int eventHandler(PlaydateAPI* pd, PDSystemEvent event, uint32_t arg)
 {
@@ -22,7 +62,8 @@ int eventHandler(PlaydateAPI* pd, PDSystemEvent event, uint32_t arg)
         playdate->system->resetElapsedTime();
         playdate->display->setRefreshRate(35);
         screen_bitmap = playdate->graphics->newBitmap(SCREENWIDTH, SCREENHEIGHT, kColorWhite);
-        bw_bitmap = playdate_malloc(sizeof(uint8_t) * SCREENWIDTH * SCREENHEIGHT);
+
+        // bw_bitmap = playdate_malloc(sizeof(uint8_t) * SCREENWIDTH * SCREENHEIGHT);
 
         doom_init(1, NULL, 0);
 
@@ -33,45 +74,40 @@ int eventHandler(PlaydateAPI* pd, PDSystemEvent event, uint32_t arg)
 }
 
 static int update(void* userdata) {
+    handleInputs();
     doom_update();
-    // screenBufferToLCDBitmap(doom_get_framebuffer(4));
-    // playdate->graphics->drawBitmap(screen_bitmap, 0, 0, 0);
+    screenBufferToLCDBitmap(doom_get_framebuffer(1));
+    playdate->graphics->drawBitmap(screen_bitmap, 0, 0, 0);
+
 
     playdate->system->drawFPS(0, 0);
     return 1;
 }
 
-/*
-static void screenBufferToLCDBitmap(const unsigned char* buffer)
+static void screenBufferToLCDBitmap(const uint8_t* buffer)
 {
-    // iterate over Doom's colored bitmap and map each uint32_t pixel to either
-    // black or white, based on a simple threshold. Map the results to a uint8_t
-    // map of the same length (i.e. number of pixels)
-    // TODO: Replace this with hopefully performant dithering techniques
-    const uint32_t THRESHOLD32 = 0x44444444;
+    uint8_t* screen_data = 0;
+    playdate->graphics->getBitmapData(screen_bitmap, 0, 0, 0, 0, &screen_data);
 
-    for (int y = 0; y < SCREENHEIGHT; y++)
-    {
-        for (int x = 0; x < SCREENWIDTH; x++)
-        {
-            uint8_t r = buffer[y * SCREENWIDTH * 4 + x * 4 + 0];
-            uint8_t g = buffer[y * SCREENWIDTH * 4 + x * 4 + 1];
-            uint8_t b = buffer[y * SCREENWIDTH * 4 + x * 4 + 2];
-            uint8_t a = buffer[y * SCREENWIDTH * 4 + x * 4 + 3];
-
-            // black-white decision based on threshold
-            uint32_t combined = ((uint32_t)r << 24) | ((uint32_t)g << 16) | ((uint32_t)b << 8) | a;
-            uint8_t color = (combined < THRESHOLD32) ? 0 : 1;
-
-            bw_bitmap[y * SCREENWIDTH + x] = color;
+    for (int z = 0; z < SCREENWIDTH * SCREENHEIGHT / 8; z++) {
+        uint8_t result = 0;
+        for (int i = 0; i < 8; ++i) {
+            uint8_t color = playdatePaletteOptimized[buffer[z * 8 + i]];
+            result = (result << 1) | (color & 0x01);
         }
+        screen_data[z] = result;
     }
 
-    // reset Playdate's screen bitmap and get screen_data pointer
-    playdate->graphics->clearBitmap(screen_bitmap, 0);
+    // This is the less optimized version from above:
+
+    /*
+    for (int i = 0; i < SCREENWIDTH * SCREENHEIGHT; i++) {
+        bw_bitmap[i] = playdatePaletteOptimized[buffer[i]];
+    }
 
     uint8_t* screen_data = NULL;
     playdate->graphics->getBitmapData(screen_bitmap, 0, 0, 0, 0, &screen_data);
+
 
     // populate Playdate's screen bitmap with values from the black-white
     // bitmap we created above. Where 8 pixels were 8 bytes before, they
@@ -86,5 +122,57 @@ static void screenBufferToLCDBitmap(const unsigned char* buffer)
         }
         screen_data[z] = result;
     }
+    */
 }
-*/
+
+static void handleInputs() {
+    PDButtons current;
+    PDButtons pushed;
+    PDButtons released;
+
+    playdate->system->getButtonState(&current, &pushed, &released);
+
+    switch (released & 0xFF) {
+        case kButtonA:
+            doom_key_up(DOOM_KEY_ENTER);
+            doom_key_up(DOOM_KEY_SPACE);
+            break;
+        case kButtonB:
+            doom_key_up(DOOM_KEY_CTRL);
+            break;
+        case kButtonUp:
+            doom_key_up(DOOM_KEY_UP_ARROW);
+            break;
+        case kButtonDown:
+            doom_key_up(DOOM_KEY_DOWN_ARROW);
+            break;
+        case kButtonLeft:
+            doom_key_up(DOOM_KEY_LEFT_ARROW);
+            break;
+        case kButtonRight:
+            doom_key_up(DOOM_KEY_RIGHT_ARROW);
+            break;
+    }
+
+    switch (pushed & 0xFF) {
+        case kButtonA:
+            doom_key_down(DOOM_KEY_ENTER);
+            doom_key_down(DOOM_KEY_SPACE);
+            break;
+        case kButtonB:
+            doom_key_down(DOOM_KEY_CTRL);
+            break;
+        case kButtonUp:
+            doom_key_down(DOOM_KEY_UP_ARROW);
+            break;
+        case kButtonDown:
+            doom_key_down(DOOM_KEY_DOWN_ARROW);
+            break;
+        case kButtonLeft:
+            doom_key_down(DOOM_KEY_LEFT_ARROW);
+            break;
+        case kButtonRight:
+            doom_key_down(DOOM_KEY_RIGHT_ARROW);
+            break;
+    }
+}
