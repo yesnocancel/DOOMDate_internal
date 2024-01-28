@@ -74,11 +74,10 @@ int eventHandler(PlaydateAPI* pd, PDSystemEvent event, uint32_t arg)
 }
 
 static int update(void* userdata) {
-    handleInputs();
     doom_update();
+    handleInputs();
     screenBufferToLCDBitmap(doom_get_framebuffer(1));
     playdate->graphics->drawBitmap(screen_bitmap, 0, 0, 0);
-
 
     playdate->system->drawFPS(0, 0);
     return 1;
@@ -132,47 +131,55 @@ static void handleInputs() {
 
     playdate->system->getButtonState(&current, &pushed, &released);
 
-    switch (released & 0xFF) {
-        case kButtonA:
-            doom_key_up(DOOM_KEY_ENTER);
-            doom_key_up(DOOM_KEY_SPACE);
-            break;
-        case kButtonB:
-            doom_key_up(DOOM_KEY_CTRL);
-            break;
-        case kButtonUp:
-            doom_key_up(DOOM_KEY_UP_ARROW);
-            break;
-        case kButtonDown:
-            doom_key_up(DOOM_KEY_DOWN_ARROW);
-            break;
-        case kButtonLeft:
-            doom_key_up(DOOM_KEY_LEFT_ARROW);
-            break;
-        case kButtonRight:
-            doom_key_up(DOOM_KEY_RIGHT_ARROW);
-            break;
+    if (current + pushed + released == 0) {
+        doom_key_up(DOOM_KEY_ENTER);
+        doom_key_up(DOOM_KEY_SPACE);
+        doom_key_up(DOOM_KEY_CTRL);
+        doom_key_up(DOOM_KEY_UP_ARROW);
+        doom_key_up(DOOM_KEY_DOWN_ARROW);
+        doom_key_up(DOOM_KEY_LEFT_ARROW);
+        doom_key_up(DOOM_KEY_RIGHT_ARROW);
     }
 
-    switch (pushed & 0xFF) {
-        case kButtonA:
-            doom_key_down(DOOM_KEY_ENTER);
-            doom_key_down(DOOM_KEY_SPACE);
-            break;
-        case kButtonB:
-            doom_key_down(DOOM_KEY_CTRL);
-            break;
-        case kButtonUp:
-            doom_key_down(DOOM_KEY_UP_ARROW);
-            break;
-        case kButtonDown:
-            doom_key_down(DOOM_KEY_DOWN_ARROW);
-            break;
-        case kButtonLeft:
-            doom_key_down(DOOM_KEY_LEFT_ARROW);
-            break;
-        case kButtonRight:
-            doom_key_down(DOOM_KEY_RIGHT_ARROW);
-            break;
+    if ((current & kButtonA) | (pushed & kButtonA)) {
+        doom_key_down(DOOM_KEY_ENTER);
+        doom_key_down(DOOM_KEY_SPACE);
     }
+    if ((current & kButtonB) | (pushed & kButtonB)) {
+        doom_key_down(DOOM_KEY_CTRL);
+    }
+    if ((current & kButtonUp) | (pushed & kButtonUp)) {
+        doom_key_down(DOOM_KEY_UP_ARROW);
+    }
+    if ((current & kButtonDown) | (pushed & kButtonDown)) {
+        doom_key_down(DOOM_KEY_DOWN_ARROW);
+    }
+    if ((current & kButtonLeft) | (pushed & kButtonLeft)) {
+        doom_key_down(DOOM_KEY_LEFT_ARROW);
+    }
+    if ((current & kButtonRight) | (pushed & kButtonRight)) {
+        doom_key_down(DOOM_KEY_RIGHT_ARROW);
+    }
+
+    if ((released & kButtonA)) {
+        doom_key_up(DOOM_KEY_ENTER);
+        doom_key_up(DOOM_KEY_SPACE);
+    }
+    if ((released & kButtonB)) {
+        doom_key_up(DOOM_KEY_CTRL);
+    }
+    if ((released & kButtonUp)) {
+        doom_key_up(DOOM_KEY_UP_ARROW);
+    }
+    if ((released & kButtonDown)) {
+        doom_key_up(DOOM_KEY_DOWN_ARROW);
+    }
+    if ((released & kButtonLeft)) {
+        doom_key_up(DOOM_KEY_LEFT_ARROW);
+    }
+    if ((released & kButtonRight)) {
+        doom_key_up(DOOM_KEY_RIGHT_ARROW);
+    }
+
+
 }
