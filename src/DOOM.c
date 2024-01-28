@@ -384,6 +384,7 @@ void doom_init(int argc, char** argv, int flags)
 
 
 void doom_update()
+// TODO: THIS IS THE ISSUE!!
 {
     int now = I_GetTime();
     int delta_time = now - last_update_time;
