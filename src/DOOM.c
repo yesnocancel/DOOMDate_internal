@@ -5,6 +5,7 @@
 #endif
 
 #include <string.h>
+#include <stdint.h>
 #include "DOOM.h"
 
 #include "d_main.h"
@@ -386,6 +387,12 @@ void doom_init(int argc, char** argv, int flags)
 void doom_update()
 // TODO: THIS IS THE ISSUE!!
 {
+    if (is_wiping_screen)
+        D_UpdateWipe();
+    else
+        D_DoomLoop();
+
+    /*
     int now = I_GetTime();
     int delta_time = now - last_update_time;
 
@@ -398,6 +405,7 @@ void doom_update()
     }
 
     last_update_time = now;
+     */
 }
 
 
