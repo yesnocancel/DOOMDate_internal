@@ -77,7 +77,7 @@ doom_boolean fastparm; // checkparm of -fast
 
 doom_boolean drone;
 
-doom_boolean singletics = true; // debug flag to cancel adaptiveness
+doom_boolean singletics = false; // debug flag to cancel adaptiveness
 
 doom_boolean is_wiping_screen = false;
 
