@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
 set(CMAKE_C_STANDARD 11)
-
 set(ENVSDK $ENV{PLAYDATE_SDK_PATH})
 
 if (NOT ${ENVSDK} STREQUAL "")
@@ -34,6 +33,7 @@ set(DOOM_FILES src/am_map.c src/d_items.c src/d_main.c src/d_net.c src/DOOM.c sr
 set(PLAYDATE_FILES src/playdate.c src/playdate_sys.c)
 
 if (TOOLCHAIN STREQUAL "armgcc")
+	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsigned-char")
 	add_executable(${PLAYDATE_GAME_DEVICE} ${DOOM_FILES} ${PLAYDATE_FILES})
 else()
 	add_library(${PLAYDATE_GAME_NAME} SHARED ${DOOM_FILES} ${PLAYDATE_FILES})
