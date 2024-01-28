@@ -246,7 +246,7 @@ const char* doom_ctoa(char c)
 const char* doom_ptoa(void* p)
 {
     int idx = 0;
-    unsigned long long i = (unsigned long long)p;
+    uintptr_t i = (uintptr_t)p;
 
     itoa_buf[idx++] = '0';
     itoa_buf[idx++] = 'x';

@@ -1151,7 +1151,7 @@ unsigned long I_TickSong(void)
             do
             {
                 delay_byte = mus_data[mus_offset++];
-                mus_delay = mus_delay * 128 + delay_byte & 0b01111111;
+                mus_delay = (mus_delay * 128 + delay_byte) & 0b01111111;
             } while (delay_byte & 0b10000000);
 
             return midi_event;

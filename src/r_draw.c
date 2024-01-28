@@ -24,6 +24,7 @@
 //-----------------------------------------------------------------------------
 
 
+#include <stdint.h>
 #include "doom_config.h"
 
 #include "doomdef.h"
@@ -364,7 +365,7 @@ void R_InitTranslationTables(void)
     int i;
 
     translationtables = Z_Malloc(256 * 3 + 255, PU_STATIC, 0);
-    translationtables = (byte*)(((unsigned long long)translationtables + 255) & ~255);
+    translationtables = (byte*)(((uintptr_t)translationtables + 255) & ~255);
 
     // translate just the 16 green colors
     for (i = 0; i < 256; i++)

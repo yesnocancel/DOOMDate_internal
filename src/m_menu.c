@@ -2106,7 +2106,7 @@ void M_Drawer(void)
     if (doom_flags & DOOM_FLAG_MENU_DARKEN_BG)
     {
         extern byte* screens[5];
-        extern unsigned char screen_palette[256 * 3];
+        // extern unsigned char screen_palette[256 * 3];
         extern lighttable_t* colormaps;
         for (int j = 0, len = SCREENWIDTH * SCREENHEIGHT; j < len; ++j)
         {
