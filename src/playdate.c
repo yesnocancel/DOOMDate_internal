@@ -1,5 +1,6 @@
 #include "playdate.h"
 #include "playdate_sys.h"
+#include "bluenoise.h"
 #include <stdio.h>
 
 #include "DOOM.h"
@@ -10,19 +11,22 @@ PlaydateAPI* playdate = NULL;
 LCDBitmap* lcdBitmap;
 
 unsigned char framebuffer_grey[SCREENWIDTH * SCREENHEIGHT];
+uint8_t DOOM_PLAYPAL_GreyGamma[256];
 
 static int update(void* userdata);
 static void handleInputs(void);
+static void calculateGammaPalette(float gamma);
 static void generateFrameBufferGrey(unsigned char* target, const unsigned char* framebuffer);
 static void floydSteinbergDithering(unsigned char *image, int width, int height);
 static void bayerDithering4x4(unsigned char *image, int width, int height);
 static void atkinsonDithering(unsigned char *image, int width, int height);
 static void voidAndClusterDithering(unsigned char *image, int width, int height);
+static void blueNoiseDithering(unsigned char *image, int width, int height);
 
 
 static void screenBufferToLCDBitmap(LCDBitmap* lcd, const unsigned char* framebuffer);
 
-static uint8_t DOOM_PLAYPAL_Grey[256] = {
+uint8_t DOOM_PLAYPAL_Grey[256] = {
           0, 24, 16, 75,255, 26, 19, 11,  7, 49, 37, 25, 17, 63, 55, 47,
         204,193,186,176,169,161,151,143,135,128,120,116,108,102, 94, 90,
          82, 78, 72, 66, 60, 56, 51, 47, 42, 38, 33, 32, 29, 23, 21, 20,
@@ -41,6 +45,13 @@ static uint8_t DOOM_PLAYPAL_Grey[256] = {
           9,  8,  6,  5,  3,  2,  1,  0,177,220,177,105, 85, 65, 45,124
 };
 
+void calculateGammaPalette(float gamma) {
+    for (int i = 0; i < 256; i++) {
+        float value = 255.0 * pow((float)DOOM_PLAYPAL_Grey[i] / 255.0, gamma);
+        DOOM_PLAYPAL_GreyGamma[i] = (uint8_t)(value + 0.5); // Adding 0.5 for rounding to nearest integer
+    }
+}
+
 int eventHandler(PlaydateAPI* pd, PDSystemEvent event, uint32_t arg)
 {
     (void)arg;
@@ -49,6 +60,10 @@ int eventHandler(PlaydateAPI* pd, PDSystemEvent event, uint32_t arg)
     {
         playdate = pd;
         register_playdate_sys_functions();
+
+        float gamma = 0.65f;
+        calculateGammaPalette(gamma);
+
         playdate->system->resetElapsedTime();
         playdate->display->setRefreshRate(35);
         playdate->graphics->clear(kColorBlack);
@@ -67,9 +82,10 @@ static int update(void* userdata) {
     handleInputs();
 
     generateFrameBufferGrey(framebuffer_grey, doom_get_framebuffer(1));
+    bayerDithering4x4(framebuffer_grey, SCREENWIDTH, SCREENHEIGHT);
     // atkinsonDithering(framebuffer_grey, SCREENWIDTH, SCREENHEIGHT);
-    // bayerDithering4x4(framebuffer_grey, SCREENWIDTH, SCREENHEIGHT);
     // floydSteinbergDithering(framebuffer_grey, SCREENWIDTH, SCREENHEIGHT);
+    // blueNoiseDithering(framebuffer_grey, SCREENWIDTH, SCREENHEIGHT);
     // voidAndClusterDithering(framebuffer_grey, SCREENWIDTH, SCREENHEIGHT);
 
     screenBufferToLCDBitmap(lcdBitmap, framebuffer_grey);
@@ -81,10 +97,24 @@ static int update(void* userdata) {
 }
 
 static void generateFrameBufferGrey(unsigned char* target, const unsigned char* source) {
-    int poormansgamma = 100;
-
     for (int i = 0; i < SCREENWIDTH * SCREENHEIGHT; i++) {
-        target[i] = DOOM_PLAYPAL_Grey[source[i]] < (255 - poormansgamma) ? DOOM_PLAYPAL_Grey[source[i]] + poormansgamma : 255;
+        target[i] = DOOM_PLAYPAL_GreyGamma[source[i]];
+    }
+}
+
+static void blueNoiseDithering(unsigned char *image, int width, int height) {
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            int pixel = image[y * width + x];
+            int noise = bluenoise[y * width + x];  // Blue noise value
+
+            // Apply dithering
+            int ditheredPixel = pixel + noise - 128;  // Direct application of noise
+
+
+            // Clamp and store the dithered pixel
+            image[y * width + x] = (ditheredPixel < 0) ? 0 : 255;
+        }
     }
 }
 
