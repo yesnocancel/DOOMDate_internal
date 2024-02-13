@@ -169,7 +169,7 @@ default_t defaults[] =
     {"joyb_speed",&joybspeed,2},
 
     {"screenblocks",&screenblocks, 9},
-    {"detaillevel",&detailLevel, 0},
+    {"detaillevel",&detailLevel, 1},
     {"crosshair",&crosshair, 0},
     {"always_run",&always_run, 0},
 
