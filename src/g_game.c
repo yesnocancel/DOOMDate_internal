@@ -429,10 +429,6 @@ void G_BuildTiccmd(ticcmd_t* cmd)
     cmd->forwardmove += forward;
     cmd->sidemove += side;
 
-    if (cmd->forwardmove != 0) {
-        doom_print(doom_itoa(cmd->forwardmove, 10));
-    }
-
     // special buttons
     if (sendpause)
     {

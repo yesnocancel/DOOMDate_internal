@@ -49,11 +49,11 @@ fixed_t FixedDiv(fixed_t a, fixed_t b)
 
 fixed_t FixedDiv2(fixed_t a, fixed_t b)
 {
-    double c;
+    float c;
 
-    c = ((double)a) / ((double)b) * FRACUNIT;
+    c = ((float)a) / ((float)b) * FRACUNIT;
 
-    if (c >= 2147483648.0 || c < -2147483648.0)
+    if (c >= 2147483648.0f || c < -2147483648.0f)
         I_Error("Error: FixedDiv: divide by zero");
     return (fixed_t)c;
 }
