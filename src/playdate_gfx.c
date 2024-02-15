@@ -22,22 +22,22 @@ LCDBitmap* lcdBitmap;
 unsigned char framebuffer_grey[DOOM_SCREENWIDTH * DOOM_SCREENHEIGHT];
 
 uint8_t DOOM_PLAYPAL_Grey[DOOM_PALETTE_SIZE] = {
-        0, 24, 16, 75,255, 26, 19, 11,  7, 49, 37, 25, 17, 63, 55, 47,
-        204,193,186,176,169,161,151,143,135,128,120,116,108,102, 94, 90,
+        0, 24, 16, 75, 255, 26, 19, 11, 7, 49, 37, 25, 17, 63, 55, 47,
+        204, 193, 186, 176, 169, 161, 151, 143, 135, 128, 120, 116, 108, 102, 94, 90,
         82, 78, 72, 66, 60, 56, 51, 47, 42, 38, 33, 32, 29, 23, 21, 20,
-        239,233,227,221,218,212,206,202,196,188,180,172,164,156,148,144,
-        137,129,123,118,111,104, 97, 92, 86, 78, 71, 65, 57, 49, 42, 35,
-        239,231,223,219,211,203,199,191,183,179,171,167,159,151,147,139,
-        131,127,119,111,107, 99, 91, 87, 79, 71, 67, 59, 55, 47, 39, 35,
-        197,185,172,159,148,135,122,112,101, 88, 76, 63, 51, 38, 27, 17,
-        171,163,155,147,139,133,127,119,111,103, 99, 91, 86, 78, 71, 67,
-        135,122,110, 98, 85, 73, 62, 53,122,110,102, 93, 82, 73, 65, 57,
-        239,208,181,154,128,101, 80, 59,255,229,207,184,162,142,120, 97,
+        239, 233, 227, 221, 218, 212, 206, 202, 196, 188, 180, 172, 164, 156, 148, 144,
+        137, 129, 123, 118, 111, 104, 97, 92, 86, 78, 71, 65, 57, 49, 42, 35,
+        239, 231, 223, 219, 211, 203, 199, 191, 183, 179, 171, 167, 159, 151, 147, 139,
+        131, 127, 119, 111, 107, 99, 91, 87, 79, 71, 67, 59, 55, 47, 39, 35,
+        197, 185, 172, 159, 148, 135, 122, 112, 101, 88, 76, 63, 51, 38, 27, 17,
+        171, 163, 155, 147, 139, 133, 127, 119, 111, 103, 99, 91, 86, 78, 71, 67,
+        135, 122, 110, 98, 85, 73, 62, 53, 122, 110, 102, 93, 82, 73, 65, 57,
+        239, 208, 181, 154, 128, 101, 80, 59, 255, 229, 207, 184, 162, 142, 120, 97,
         76, 71, 67, 64, 60, 57, 53, 49, 46, 41, 37, 34, 30, 27, 23, 20,
-        233,205,180,155,130,102, 77, 52, 29, 25, 23, 20, 17, 14, 12,  9,
-        255,239,223,210,195,182,166,153,142,137,128,121,112,104, 96, 91,
-        255,250,246,242,238,234,229,225, 86, 79, 71, 60, 62, 50, 39, 31,
-        9,  8,  6,  5,  3,  2,  1,  0,177,220,177,105, 85, 65, 45,124
+        233, 205, 180, 155, 130, 102, 77, 52, 29, 25, 23, 20, 17, 14, 12, 9,
+        255, 239, 223, 210, 195, 182, 166, 153, 142, 137, 128, 121, 112, 104, 96, 91,
+        255, 250, 246, 242, 238, 234, 229, 225, 86, 79, 71, 60, 62, 50, 39, 31,
+        9, 8, 6, 5, 3, 2, 1, 0, 177, 220, 177, 105, 85, 65, 45, 124
 };
 uint8_t DOOM_PLAYPAL_GreyGamma[DOOM_PALETTE_SIZE];
 
@@ -47,21 +47,21 @@ static void calculateGammaPalette(float gamma);
 static void generateFrameBufferGrey(unsigned char* target, const unsigned char* framebuffer);
 
 // Dithering methods
-static void floydSteinbergDithering(unsigned char *image, int width, int height);
+static void floydSteinbergDithering(unsigned char* image, int width, int height);
 
-static void jjnDither(unsigned char *image, int width, int height);
+static void jjnDither(unsigned char* image, int width, int height);
 
-static void burkesDither(unsigned char *image, int width, int height);
+static void burkesDither(unsigned char* image, int width, int height);
 
-static void stuckiDither(unsigned char *image, int width, int height);
+static void stuckiDither(unsigned char* image, int width, int height);
 
-static void bayerDithering2x2(unsigned char *image, int width, int height);
+static void bayerDithering2x2(unsigned char* image, int width, int height);
 
-static void bayerDithering4x4(unsigned char *image, int width, int height);
+static void bayerDithering4x4(unsigned char* image, int width, int height);
 
-static void bayerDithering8x8(unsigned char *image, int width, int height);
+static void bayerDithering8x8(unsigned char* image, int width, int height);
 
-static void atkinsonDithering(unsigned char *image, int width, int height);
+static void atkinsonDithering(unsigned char* image, int width, int height);
 
 static void screenBufferToLCDBitmap(LCDBitmap* lcd, const unsigned char* framebuffer);
 
@@ -95,8 +95,8 @@ void refreshScreen(void) {
 
 static void calculateGammaPalette(float gamma) {
     for (int i = 0; i < 256; i++) {
-        float value = 255.0f * powf((float)DOOM_PLAYPAL_Grey[i] / 255.0f, gamma);
-        DOOM_PLAYPAL_GreyGamma[i] = (uint8_t)(value + 0.5f); // Adding 0.5 for rounding to nearest integer
+        float value = 255.0f * powf((float) DOOM_PLAYPAL_Grey[i] / 255.0f, gamma);
+        DOOM_PLAYPAL_GreyGamma[i] = (uint8_t) (value + 0.5f); // Adding 0.5 for rounding to nearest integer
     }
 }
 
@@ -106,7 +106,7 @@ static void generateFrameBufferGrey(unsigned char* target, const unsigned char* 
     }
 }
 
-static void blueNoiseDithering(unsigned char *image, int width, int height) {
+static void blueNoiseDithering(unsigned char* image, int width, int height) {
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
             int pixel = image[y * width + x];
@@ -122,7 +122,7 @@ static void blueNoiseDithering(unsigned char *image, int width, int height) {
     }
 }
 
-static void floydSteinbergDithering(unsigned char *image, int width, int height) {
+static void floydSteinbergDithering(unsigned char* image, int width, int height) {
     int x, y;
     for (y = 0; y < height; y++) {
         for (x = 0; x < width; x++) {
@@ -144,7 +144,7 @@ static void floydSteinbergDithering(unsigned char *image, int width, int height)
     }
 }
 
-static void jjnDither(unsigned char *image, int width, int height) {
+static void jjnDither(unsigned char* image, int width, int height) {
     int err;
     int newPixel;
     int oldPixel;
@@ -175,7 +175,7 @@ static void jjnDither(unsigned char *image, int width, int height) {
     }
 }
 
-static void burkesDitherWorks(unsigned char *image, int width, int height) {
+static void burkesDitherWorks(unsigned char* image, int width, int height) {
     int err;
     int newPixel;
     int oldPixel;
@@ -205,7 +205,7 @@ static void burkesDitherWorks(unsigned char *image, int width, int height) {
     }
 }
 
-static void burkesDither(unsigned char *image, int width, int height) {
+static void burkesDither(unsigned char* image, int width, int height) {
     int err;
     int newPixel;
 
@@ -235,7 +235,7 @@ static void burkesDither(unsigned char *image, int width, int height) {
     }
 }
 
-static void stuckiDither(unsigned char *image, int width, int height) {
+static void stuckiDither(unsigned char* image, int width, int height) {
     int err;
     int newPixel;
 
@@ -276,7 +276,7 @@ static void stuckiDither(unsigned char *image, int width, int height) {
     }
 }
 
-static void stuckiDitherWorks(unsigned char *image, int width, int height) {
+static void stuckiDitherWorks(unsigned char* image, int width, int height) {
     int err;
     int newPixel;
     int oldPixel;
@@ -307,10 +307,10 @@ static void stuckiDitherWorks(unsigned char *image, int width, int height) {
     }
 }
 
-static void bayerDithering2x2(unsigned char *image, int width, int height) {
+static void bayerDithering2x2(unsigned char* image, int width, int height) {
     int bayerMatrix[2][2] = {
-            {   0, 128 },
-            { 192,  64 }
+            {0,   128},
+            {192, 64}
     };
 
     for (int y = 0; y < height; y++) {
@@ -322,12 +322,12 @@ static void bayerDithering2x2(unsigned char *image, int width, int height) {
     }
 }
 
-static void bayerDithering4x4(unsigned char *image, int width, int height) {
+static void bayerDithering4x4(unsigned char* image, int width, int height) {
     int bayerMatrix[4][4] = {
-            {   0, 128,  32, 160 },
-            { 192,  64, 224,  96 },
-            {  48, 176,  16, 144 },
-            { 240, 112, 208,  80 }
+            {0,   128, 32,  160},
+            {192, 64,  224, 96},
+            {48,  176, 16,  144},
+            {240, 112, 208, 80}
     };
 
     for (int y = 0; y < height; y++) {
@@ -339,16 +339,16 @@ static void bayerDithering4x4(unsigned char *image, int width, int height) {
     }
 }
 
-static void bayerDithering8x8(unsigned char *image, int width, int height) {
+static void bayerDithering8x8(unsigned char* image, int width, int height) {
     int bayerMatrix[8][8] = {
-            {0, 128, 32, 160, 8, 136, 40, 168},
-            {192, 64, 224, 96, 200, 72, 232, 104},
-            {48, 176, 16, 144, 56, 184, 24, 152},
-            {240, 112, 208, 80, 248, 120, 216, 88},
-            {12, 140, 44, 172, 4, 132, 36, 164},
-            {204, 76, 236, 108, 196, 68, 228, 100},
-            {60, 188, 28, 156, 52, 180, 20, 148},
-            {252, 124, 220, 92, 244, 116, 212, 84}
+            {0,   128, 32,  160, 8,   136, 40,  168},
+            {192, 64,  224, 96,  200, 72,  232, 104},
+            {48,  176, 16,  144, 56,  184, 24,  152},
+            {240, 112, 208, 80,  248, 120, 216, 88},
+            {12,  140, 44,  172, 4,   132, 36,  164},
+            {204, 76,  236, 108, 196, 68,  228, 100},
+            {60,  188, 28,  156, 52,  180, 20,  148},
+            {252, 124, 220, 92,  244, 116, 212, 84}
     };
 
     for (int y = 0; y < height; y++) {
@@ -360,7 +360,7 @@ static void bayerDithering8x8(unsigned char *image, int width, int height) {
     }
 }
 
-void atkinsonDithering(unsigned char *image, int width, int height) {
+void atkinsonDithering(unsigned char* image, int width, int height) {
     int x, y;
     for (y = 0; y < height; y++) {
         for (x = 0; x < width; x++) {
@@ -387,8 +387,7 @@ void atkinsonDithering(unsigned char *image, int width, int height) {
     }
 }
 
-static void screenBufferToLCDBitmap(LCDBitmap* lcd, const uint8_t* framebuffer)
-{
+static void screenBufferToLCDBitmap(LCDBitmap* lcd, const uint8_t* framebuffer) {
     uint8_t* screen_data = 0;
     playdate->graphics->getBitmapData(lcd, 0, 0, 0, 0, &screen_data);
 

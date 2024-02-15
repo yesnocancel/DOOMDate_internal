@@ -63,6 +63,4 @@ void handleInputs(void) {
     if ((released & kButtonRight)) {
         doom_key_up(DOOM_KEY_RIGHT_ARROW);
     }
-
-
 }

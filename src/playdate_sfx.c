@@ -24,7 +24,7 @@ static void refillAudioBuffer(int16_t* doomBuffer) {
     for (int i = 0; i < 2 * SAMPLES_PER_CHANNEL; i += 2) {
         for (int j = 0; j < 4; j++) {
             playdateAudioBuffer[idx++] = doomBuffer[i];
-            playdateAudioBuffer[idx++] = doomBuffer[i+1];
+            playdateAudioBuffer[idx++] = doomBuffer[i + 1];
         }
     }
 }

@@ -12,12 +12,10 @@ PlaydateAPI* playdate;
 
 static int update(void* userdata);
 
-int eventHandler(PlaydateAPI* pd, PDSystemEvent event, uint32_t arg)
-{
-    (void)arg;
+int eventHandler(PlaydateAPI* pd, PDSystemEvent event, uint32_t arg) {
+    (void) arg;
 
-    if ( event == kEventInit )
-    {
+    if (event == kEventInit) {
         playdate = pd;
 
         registerPlaydateSysFunctions();
@@ -33,8 +31,7 @@ int eventHandler(PlaydateAPI* pd, PDSystemEvent event, uint32_t arg)
     return 0;
 }
 
-static int update(void* userdata)
-{
+static int update(void* userdata) {
     handleInputs();
     doom_update();
     refreshScreen();
