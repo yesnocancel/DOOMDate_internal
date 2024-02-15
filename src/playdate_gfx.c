@@ -18,7 +18,6 @@
 #define PLAYDATE_SCREENHEIGHT 240
 #define PLAYDATE_REFRESH_RATE 35
 
-PlaydateAPI* playdate;
 LCDBitmap* lcdBitmap;
 unsigned char framebuffer_grey[DOOM_SCREENWIDTH * DOOM_SCREENHEIGHT];
 
@@ -66,14 +65,11 @@ static void atkinsonDithering(unsigned char *image, int width, int height);
 
 static void screenBufferToLCDBitmap(LCDBitmap* lcd, const unsigned char* framebuffer);
 
-void initPlaydateGraphics(PlaydateAPI* pd) {
-    playdate = pd;
-
+void initPlaydateGraphics() {
     calculateGammaPalette(GAMMA);
 
     lcdBitmap = playdate->graphics->newBitmap(DOOM_SCREENWIDTH, DOOM_SCREENHEIGHT, kColorBlack);
 
-    playdate->system->resetElapsedTime();
     playdate->display->setRefreshRate(PLAYDATE_REFRESH_RATE);
     playdate->graphics->clear(kColorBlack);
 }

@@ -7,7 +7,7 @@
 
 #include "DOOM.h"
 
-void handleInputs(PlaydateAPI* playdate) {
+void handleInputs(void) {
     PDButtons current;
     PDButtons pushed;
     PDButtons released;

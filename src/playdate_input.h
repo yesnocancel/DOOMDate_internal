@@ -6,8 +6,10 @@
 #ifndef DOOMDATE_PLAYDATE_INPUT_H
 #define DOOMDATE_PLAYDATE_INPUT_H
 
-#include "pd_api.h"
+#include <pd_api.h>
 
-void handleInputs(PlaydateAPI* playdate);
+extern PlaydateAPI* playdate;
+
+void handleInputs(void);
 
 #endif //DOOMDATE_PLAYDATE_INPUT_H

@@ -1,9 +1,10 @@
-#include "pd_api.h"
+#include <pd_api.h>
 
 #include "playdate_gfx.h"
 #include "playdate_input.h"
 #include "playdate_sfx.h"
 #include "playdate_sys.h"
+#include "DOOM.h"
 
 PlaydateAPI* playdate;
 
@@ -19,13 +20,14 @@ int eventHandler(PlaydateAPI* pd, PDSystemEvent event, uint32_t arg)
     {
         playdate = pd;
 
-        registerPlaydateSysFunctions(playdate);
-        initPlaydateGraphics(playdate);
-        initPlaydateSoundSource(playdate);
+        registerPlaydateSysFunctions();
+        initPlaydateGraphics();
+        initPlaydateSoundSource();
+
+        playdate->system->resetElapsedTime();
+        playdate->system->setUpdateCallback(update, playdate);
 
         doom_init(1, NULL, 0);
-
-        playdate->system->setUpdateCallback(update, playdate);
     }
 
     return 0;
@@ -33,7 +35,7 @@ int eventHandler(PlaydateAPI* pd, PDSystemEvent event, uint32_t arg)
 
 static int update(void* userdata)
 {
-    handleInputs(playdate);
+    handleInputs();
     doom_update();
     refreshScreen();
 #if SHOW_FPS

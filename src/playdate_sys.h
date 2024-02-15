@@ -7,9 +7,12 @@
 #define DOOMDATE_PLAYDATE_SYS_H
 
 #include <pd_api.h>
+
 #include "DOOM.h"
 
-void registerPlaydateSysFunctions(PlaydateAPI* pd);
+extern PlaydateAPI* playdate;
+
+void registerPlaydateSysFunctions(void);
 
 void playdate_printfn(const char* str);
 void* playdate_malloc(int size);

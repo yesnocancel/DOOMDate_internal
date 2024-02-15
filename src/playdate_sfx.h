@@ -6,8 +6,10 @@
 #ifndef DOOMDATE_PLAYDATE_SFX_H
 #define DOOMDATE_PLAYDATE_SFX_H
 
-#include "pd_api.h"
+#include <pd_api.h>
 
-void initPlaydateSoundSource(PlaydateAPI* pd);
+extern PlaydateAPI* playdate;
+
+void initPlaydateSoundSource(void);
 
 #endif //DOOMDATE_PLAYDATE_SFX_H

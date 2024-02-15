@@ -6,9 +6,11 @@
 #ifndef DOOMDATE_PLAYDATE_GFX_H
 #define DOOMDATE_PLAYDATE_GFX_H
 
-#include "pd_api.h"
+#include <pd_api.h>
 
-void initPlaydateGraphics(PlaydateAPI* pd);
+extern PlaydateAPI* playdate;
+
+void initPlaydateGraphics(void);
 void refreshScreen(void);
 
 #endif //DOOMDATE_PLAYDATE_GFX_H
