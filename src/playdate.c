@@ -8,7 +8,7 @@
 
 PlaydateAPI* playdate;
 
-#define SHOW_FPS 0
+#define SHOW_FPS 1
 
 static int update(void* userdata);
 
