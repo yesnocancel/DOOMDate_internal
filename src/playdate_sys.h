@@ -1,9 +1,15 @@
+//
+// Created by Fabian Hartmann.
+// https://github.com/yesnocancel
+//
+
 #ifndef DOOMDATE_PLAYDATE_SYS_H
 #define DOOMDATE_PLAYDATE_SYS_H
 
+#include <pd_api.h>
 #include "DOOM.h"
 
-void register_playdate_sys_functions(void);
+void registerPlaydateSysFunctions(PlaydateAPI* pd);
 
 void playdate_printfn(const char* str);
 void* playdate_malloc(int size);

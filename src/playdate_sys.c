@@ -1,7 +1,16 @@
-#include "playdate.h"
+//
+// Created by Fabian Hartmann.
+// https://github.com/yesnocancel
+//
+
 #include "playdate_sys.h"
 
-void register_playdate_sys_functions(void) {
+PlaydateAPI* playdate;
+
+void registerPlaydateSysFunctions(PlaydateAPI* pd)
+{
+    playdate = pd;
+
     doom_set_print(playdate_printfn);
     doom_set_malloc(playdate_malloc, playdate_free);
     doom_set_file_io(playdate_fopen, playdate_fclose, playdate_read, playdate_write, playdate_seek, playdate_tell, playdate_eof);
@@ -89,7 +98,8 @@ int playdate_tell(SDFile* handle) {
     return playdate->file->tell(handle);
 }
 
-int playdate_eof(SDFile* handle) {
+int playdate_eof(SDFile* handle)
+{
     int current_offset = playdate->file->tell(handle);
 
     // get file size
@@ -101,7 +111,8 @@ int playdate_eof(SDFile* handle) {
     return current_offset >= filesize;
 }
 
-void playdate_get_time(int* sec, int* usec) {
+void playdate_get_time(int* sec, int* usec)
+{
     float time = playdate->system->getElapsedTime();
 
     int timeSec = (int)time;
