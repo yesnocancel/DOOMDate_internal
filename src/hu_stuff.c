@@ -34,6 +34,7 @@
 #include "doomstat.h"
 #include "dstrings.h" // Data.
 #include "sounds.h"
+#include "playdate_gfx.h"
 
 
 //
@@ -511,6 +512,7 @@ void HU_Ticker(void)
             || (plr->message && message_dontfuckwithme))
         {
             HUlib_addMessageToSText(&w_message, 0, plr->message);
+            playdateCatchIngameMessage(plr->message);
             plr->message = 0;
             message_on = true;
             message_counter = HU_MSGTIMEOUT;

@@ -12,5 +12,6 @@ extern PlaydateAPI* playdate;
 
 void playdateInitGraphics(void);
 void playdateRefreshScreen(void);
+void playdateCatchIngameMessage(char* message);
 
 #endif //DOOMDATE_PLAYDATE_GFX_H
