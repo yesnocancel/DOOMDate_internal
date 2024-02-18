@@ -20,7 +20,7 @@ int eventHandler(PlaydateAPI* pd, PDSystemEvent event, uint32_t arg) {
 
         registerPlaydateSysFunctions();
         initPlaydateGraphics();
-        initPlaydateSoundSource();
+        playdateInitSoundSource();
 
         playdate->system->resetElapsedTime();
         playdate->system->setUpdateCallback(update, playdate);
@@ -32,7 +32,7 @@ int eventHandler(PlaydateAPI* pd, PDSystemEvent event, uint32_t arg) {
 }
 
 static int update(void* userdata) {
-    handleInputs();
+    playdateHandleInputs();
     doom_update();
     refreshScreen();
 #if SHOW_FPS

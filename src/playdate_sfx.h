@@ -10,6 +10,6 @@
 
 extern PlaydateAPI* playdate;
 
-void initPlaydateSoundSource(void);
+void playdateInitSoundSource(void);
 
 #endif //DOOMDATE_PLAYDATE_SFX_H

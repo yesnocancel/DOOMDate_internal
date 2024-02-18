@@ -10,6 +10,6 @@
 
 extern PlaydateAPI* playdate;
 
-void handleInputs(void);
+void playdateHandleInputs(void);
 
 #endif //DOOMDATE_PLAYDATE_INPUT_H

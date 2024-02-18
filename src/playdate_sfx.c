@@ -15,7 +15,7 @@ static int audioBufferIndex = 0;
 
 static int doomAudioCallback(void* context, int16_t* left, int16_t* right, int len);
 
-void initPlaydateSoundSource(void) {
+void playdateInitSoundSource(void) {
     playdate->sound->addSource(doomAudioCallback, NULL, 1); // 1 for stereo
 }
 
