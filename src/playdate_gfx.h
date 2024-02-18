@@ -10,7 +10,7 @@
 
 extern PlaydateAPI* playdate;
 
-void initPlaydateGraphics(void);
-void refreshScreen(void);
+void playdateInitGraphics(void);
+void playdateRefreshScreen(void);
 
 #endif //DOOMDATE_PLAYDATE_GFX_H
