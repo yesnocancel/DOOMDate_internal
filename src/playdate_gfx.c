@@ -8,7 +8,6 @@
 #include "bluenoise.h"
 #include "DOOM.h"
 #include "playdate_sys.h"
-#include "doom_config.h"
 
 #define GAMMA 0.8f
 
@@ -29,10 +28,10 @@ typedef struct {
 } screenarea_t;
 
 screenarea_t defineScreenArea(uint16_t x, uint16_t y, uint16_t width, uint16_t height);
-static void refreshScreenArea(screenarea_t target, const uint8_t* source);
+static void fillScreenArea(screenarea_t target, const uint8_t* source);
 static void screenAreaToLCDBitmap(LCDBitmap* lcd, screenarea_t screenArea);
 static void screenAreaToLCDBitmap_MultipleOf8(LCDBitmap* lcd, screenarea_t screenArea);
-static void screenAreaToLCDBitmap_MultipleOf32(LCDBitmap* lcd, screenarea_t screenArea);
+static void drawLCDBitmap(LCDBitmap* lcd, int x, int y, float xscale, float yscale);
 
 screenarea_t fullScreen;
 screenarea_t gameWindow;
@@ -41,8 +40,6 @@ screenarea_t statusBar;
 LCDBitmap* fullScreenBitmap;
 LCDBitmap* gameWindowBitmap;
 LCDBitmap* statusBarBitmap;
-
-unsigned char framebuffer_grey[DOOM_SCREENWIDTH * DOOM_SCREENHEIGHT];
 
 uint8_t DOOM_PLAYPAL_Grey[DOOM_PALETTE_SIZE] = {
         0, 24, 16, 75, 255, 26, 19, 11, 7, 49, 37, 25, 17, 63, 55, 47,
@@ -67,33 +64,34 @@ uint8_t DOOM_PLAYPAL_GreyGamma[DOOM_PALETTE_SIZE];
 
 static void calculateGammaPalette(float gamma);
 
-static void generateFrameBufferGrey(unsigned char* target, const unsigned char* framebuffer);
+static void generateFrameBufferGrey(uint8_t* target, const uint8_t* framebuffer);
 
 // Dithering methods
-static void floydSteinbergDithering(unsigned char* image, int width, int height);
+static void floydSteinbergDithering(uint8_t* image, int width, int height);
 
-static void jjnDither(unsigned char* image, int width, int height);
+static void jjnDither(uint8_t* image, int width, int height);
 
-static void burkesDitherWorks(unsigned char* image, int width, int height);
+static void burkesDither(uint8_t* image, int width, int height);
 
-static void stuckiDither(unsigned char* image, int width, int height);
+static void burkesDitherWorks(uint8_t* image, int width, int height);
 
-static void bayerDithering2x2(unsigned char* image, int width, int height);
+static void stuckiDither(uint8_t* image, int width, int height);
 
-static void bayerDithering4x4(unsigned char* image, int width, int height);
+static void bayerDithering2x2(uint8_t* image, int width, int height);
 
-static void bayerDithering8x8(unsigned char* image, int width, int height);
+static void bayerDithering4x4(uint8_t* image, int width, int height);
 
-static void atkinsonDithering(unsigned char* image, int width, int height);
+static void bayerDithering8x8(uint8_t* image, int width, int height);
 
-static void screenBufferToLCDBitmap(LCDBitmap* lcd, const unsigned char* framebuffer);
+static void atkinsonDithering(uint8_t* image, int width, int height);
+
+static void screenBufferToLCDBitmap(LCDBitmap* lcd, const uint8_t* framebuffer);
 
 void playdateInitGraphics() {
     calculateGammaPalette(GAMMA);
 
     fullScreen = defineScreenArea(0, 0, DOOM_SCREENWIDTH, DOOM_SCREENHEIGHT);
-    // gameWindow = defineScreenArea(14, 9, 292, 147);
-    gameWindow = defineScreenArea(0, 0, 120, DOOM_SCREENHEIGHT);
+    gameWindow = defineScreenArea(14, 9, 292, 147);
     statusBar = defineScreenArea(0, 168, 320, 32);
 
     fullScreenBitmap = playdate->graphics->newBitmap(fullScreen.width, fullScreen.height, kColorBlack);
@@ -108,21 +106,21 @@ void playdateRefreshScreen(void) {
     uint8_t* doomFramebuffer = doom_get_framebuffer(1);
 
     /*
-    uint8_t doomFramebuffer[DOOM_SCREENWIDTH * DOOM_SCREENHEIGHT];
-    for(int i = 0; i < DOOM_SCREENWIDTH * DOOM_SCREENHEIGHT; i++) {
-        doomFramebuffer[i] = 128;
-    }
+    fillScreenArea(fullScreen, doomFramebuffer);
+    bayerDithering4x4(fullScreen.data, fullScreen.width, fullScreen.height);
+    screenAreaToLCDBitmap(fullScreenBitmap, fullScreen);
+    drawLCDBitmap(fullScreenBitmap, fullScreen.x, fullScreen.y, 1.0f, 1.0f);
     */
 
-    refreshScreenArea(gameWindow, doomFramebuffer);
-    burkesDitherWorks(gameWindow.data, gameWindow.width, gameWindow.height);
-    screenAreaToLCDBitmap_MultipleOf8(gameWindowBitmap, gameWindow);
+    fillScreenArea(gameWindow, doomFramebuffer);
+    burkesDither(gameWindow.data, gameWindow.width, gameWindow.height);
+    screenAreaToLCDBitmap(gameWindowBitmap, gameWindow);
+    drawLCDBitmap(gameWindowBitmap, gameWindow.x + 30, gameWindow.y + 10, 1.0f, 1.0f);
 
-    /*
-    refreshScreenArea(statusBar, doomFramebuffer);
-    burkesDitherWorks(statusBar.data, statusBar.width, statusBar.height);
+    fillScreenArea(statusBar, doomFramebuffer);
+    jjnDither(statusBar.data, statusBar.width, statusBar.height);
     screenAreaToLCDBitmap(statusBarBitmap, statusBar);
-    */
+    drawLCDBitmap(statusBarBitmap, statusBar.x + 30, statusBar.y, 1.0f, 1.0f);
 }
 
 void playdateCatchIngameMessage(char* message) {
@@ -140,7 +138,6 @@ void freeScreenArea(screenarea_t area) {
     playdate_free(area.data);
 }
 
-
 static void calculateGammaPalette(float gamma) {
     for (int i = 0; i < 256; i++) {
         float value = 255.0f * powf((float) DOOM_PLAYPAL_Grey[i] / 255.0f, gamma);
@@ -148,52 +145,52 @@ static void calculateGammaPalette(float gamma) {
     }
 }
 
-static void refreshScreenArea(screenarea_t target, const uint8_t* source) {
-    uint32_t sourceOffset = target.y * DOOM_SCREENWIDTH + target.x;
+static void fillScreenArea(screenarea_t target, const uint8_t* source) {
+    uint32_t startOffset = target.y * DOOM_SCREENWIDTH + target.x;
 
     for (int y = 0; y < target.height; y++) {
+        uint32_t rowStartIndex = startOffset + y * DOOM_SCREENWIDTH;
         for (int x = 0; x < target.width; x++) {
-            uint32_t sourceIndex = sourceOffset + y * DOOM_SCREENWIDTH + x;
-
-            uint8_t sourceVal = source[sourceIndex];
-
-            // target.data[y * target.width + x] = sourceVal;
-            target.data[y * target.width + x] = DOOM_PLAYPAL_GreyGamma[sourceVal];
+            uint8_t pixel = source[rowStartIndex + x];
+            target.data[y * target.width + x] = DOOM_PLAYPAL_GreyGamma[pixel];
         }
     }
 }
 
-static void screenAreaToLCDBitmap(LCDBitmap* lcd, const screenarea_t screenArea) {
+static void drawLCDBitmap(LCDBitmap* lcd, int x, int y, float xscale, float yscale) {
+    if (xscale == 1.0f && yscale == 1.0f) {
+        playdate->graphics->drawBitmap(lcd, x, y, 0);
+    } else {
+        playdate->graphics->drawScaledBitmap(lcd, x, y, xscale, yscale);
+    }
+}
+
+static void screenAreaToLCDBitmap(LCDBitmap* lcd, screenarea_t screenArea) {
     int lcdBytesPerRow;
     uint8_t* lcdData = NULL;
     playdate->graphics->getBitmapData(lcd, NULL, NULL, &lcdBytesPerRow, NULL, &lcdData);
 
-    int pixelIndex = 0;
+    int numOfPaddingBytes = lcdBytesPerRow - ((screenArea.width + 7) / 8);
 
     for (int y = 0; y < screenArea.height; y++) {
-        int rowByteCount = 0;
         for (int x = 0; x < screenArea.width; x += 8) {
             int pixelsToProcess = (screenArea.width - x) < 8 ? (screenArea.width - x) : 8;
             uint8_t resultByte = 0;
 
             for (int i = 0; i < pixelsToProcess; i++) {
-                resultByte = (resultByte << 1) | (screenArea.data[pixelIndex++] & 0x01);
+                resultByte = (resultByte << 1) | (*screenArea.data++ & 0x01);
             }
 
             // Pad the rest of the byte if less than 8 pixels are processed
             resultByte <<= (8 - pixelsToProcess);
             *lcdData++ = resultByte;
-            rowByteCount++;
         }
 
         // Add padding to complete the row if necessary
-        while (rowByteCount < lcdBytesPerRow) {
+        for (int i = 0; i < numOfPaddingBytes; i++) {
             *lcdData++ = 0;
-            rowByteCount++;
         }
     }
-
-    playdate->graphics->drawBitmap(lcd, screenArea.x, screenArea.y, 0);
 }
 
 // this is a simpler version that only works with screenArea.width multiples of 8 pixels
@@ -226,7 +223,7 @@ static void screenAreaToLCDBitmap_MultipleOf8(LCDBitmap* lcd, screenarea_t scree
 
 ////// DITHERING /////////
 
-static void blueNoiseDithering(unsigned char* image, int width, int height) {
+static void blueNoiseDithering(uint8_t* image, int width, int height) {
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
             int pixel = image[y * width + x];
@@ -242,7 +239,7 @@ static void blueNoiseDithering(unsigned char* image, int width, int height) {
     }
 }
 
-static void floydSteinbergDithering(unsigned char* image, int width, int height) {
+static void floydSteinbergDithering(uint8_t* image, int width, int height) {
     int x, y;
     for (y = 0; y < height; y++) {
         for (x = 0; x < width; x++) {
@@ -264,7 +261,7 @@ static void floydSteinbergDithering(unsigned char* image, int width, int height)
     }
 }
 
-static void jjnDither(unsigned char* image, int width, int height) {
+static void jjnDither(uint8_t* image, int width, int height) {
     int err;
     int newPixel;
     int oldPixel;
@@ -295,7 +292,7 @@ static void jjnDither(unsigned char* image, int width, int height) {
     }
 }
 
-static void burkesDitherWorks(unsigned char* image, int width, int height) {
+static void burkesDitherWorks(uint8_t* image, int width, int height) {
     int err;
     int newPixel;
     int oldPixel;
@@ -325,7 +322,7 @@ static void burkesDitherWorks(unsigned char* image, int width, int height) {
     }
 }
 
-static void burkesDither(unsigned char* image, int width, int height) {
+static void burkesDither(uint8_t* image, int width, int height) {
     int err;
     int newPixel;
 
@@ -355,7 +352,7 @@ static void burkesDither(unsigned char* image, int width, int height) {
     }
 }
 
-static void stuckiDither(unsigned char* image, int width, int height) {
+static void stuckiDither(uint8_t* image, int width, int height) {
     int err;
     int newPixel;
 
@@ -396,7 +393,7 @@ static void stuckiDither(unsigned char* image, int width, int height) {
     }
 }
 
-static void stuckiDitherWorks(unsigned char* image, int width, int height) {
+static void stuckiDitherWorks(uint8_t* image, int width, int height) {
     int err;
     int newPixel;
     int oldPixel;
@@ -427,7 +424,7 @@ static void stuckiDitherWorks(unsigned char* image, int width, int height) {
     }
 }
 
-static void bayerDithering2x2(unsigned char* image, int width, int height) {
+static void bayerDithering2x2(uint8_t* image, int width, int height) {
     int bayerMatrix[2][2] = {
             {0,   128},
             {192, 64}
@@ -442,7 +439,7 @@ static void bayerDithering2x2(unsigned char* image, int width, int height) {
     }
 }
 
-static void bayerDithering4x4(unsigned char* image, int width, int height) {
+static void bayerDithering4x4(uint8_t* image, int width, int height) {
     int bayerMatrix[4][4] = {
             {0,   128, 32,  160},
             {192, 64,  224, 96},
@@ -459,7 +456,7 @@ static void bayerDithering4x4(unsigned char* image, int width, int height) {
     }
 }
 
-static void bayerDithering8x8(unsigned char* image, int width, int height) {
+static void bayerDithering8x8(uint8_t* image, int width, int height) {
     int bayerMatrix[8][8] = {
             {0,   128, 32,  160, 8,   136, 40,  168},
             {192, 64,  224, 96,  200, 72,  232, 104},
@@ -480,7 +477,7 @@ static void bayerDithering8x8(unsigned char* image, int width, int height) {
     }
 }
 
-void atkinsonDithering(unsigned char* image, int width, int height) {
+void atkinsonDithering(uint8_t* image, int width, int height) {
     int x, y;
     for (y = 0; y < height; y++) {
         for (x = 0; x < width; x++) {
