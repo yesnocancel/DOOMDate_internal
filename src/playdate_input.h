@@ -7,6 +7,7 @@
 #define DOOMDATE_PLAYDATE_INPUT_H
 
 #include <pd_api.h>
+#include "d_player.h"
 
 extern PlaydateAPI* playdate;
 
