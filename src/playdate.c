@@ -1,5 +1,6 @@
 #include "pd_api.h"
 
+#include "playdate_gfx.h"
 #include "playdate_sys.h"
 
 PlaydateAPI* playdate;
@@ -16,6 +17,7 @@ int eventHandler(PlaydateAPI* pd, PDSystemEvent event, uint32_t arg)
     {
         playdate = pd;
         registerPlaydateSysFunctions();
+        initPlaydateGraphics(playdate);
         doom_init(1, NULL, 0);
         playdate->system->setUpdateCallback(update, playdate);
     }
@@ -26,6 +28,7 @@ int eventHandler(PlaydateAPI* pd, PDSystemEvent event, uint32_t arg)
 static int update(void* userdata)
 {
     doom_update();
+    refreshScreen();
 #if SHOW_FPS
     playdate->system->drawFPS(0, 0);
 #endif
