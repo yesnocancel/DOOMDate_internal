@@ -43,6 +43,7 @@ uint8_t DOOM_PLAYPAL_Grey[DOOM_PALETTE_SIZE] = {
 static void calculateGammaPalette(float gamma);
 static void generateFrameBufferGrey(unsigned char* target, const unsigned char* framebuffer);
 static void screenBufferToLCDBitmap(LCDBitmap* lcd, const unsigned char* framebuffer);
+static void bayerDithering4x4(unsigned char *image, int width, int height);
 
 void initPlaydateGraphics(void) {
     calculateGammaPalette(GAMMA);
@@ -56,6 +57,7 @@ void initPlaydateGraphics(void) {
 
 void refreshScreen(void) {
     generateFrameBufferGrey(framebuffer_grey, doom_get_framebuffer(1));
+    bayerDithering4x4(framebuffer_grey, DOOM_SCREENWIDTH, DOOM_SCREENHEIGHT);
     screenBufferToLCDBitmap(lcdBitmap, framebuffer_grey);
     // playdate->graphics->drawScaledBitmap(lcdBitmap, 8, 0, 1.2, 1.2);
     playdate->graphics->drawBitmap(lcdBitmap, 40, 20, 0);
@@ -71,6 +73,23 @@ static void calculateGammaPalette(float gamma) {
 static void generateFrameBufferGrey(unsigned char* target, const unsigned char* source) {
     for (int i = 0; i < DOOM_SCREENWIDTH * DOOM_SCREENHEIGHT; i++) {
         target[i] = DOOM_PLAYPAL_Grey[source[i]];
+    }
+}
+
+static void bayerDithering4x4(unsigned char *image, int width, int height) {
+    int bayerMatrix[4][4] = {
+            {   0, 128,  32, 160 },
+            { 192,  64, 224,  96 },
+            {  48, 176,  16, 144 },
+            { 240, 112, 208,  80 }
+    };
+
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            int threshold = bayerMatrix[y % 4][x % 4];
+
+            image[y * width + x] = (image[y * width + x] > threshold) ? 255 : 0;
+        }
     }
 }
 
