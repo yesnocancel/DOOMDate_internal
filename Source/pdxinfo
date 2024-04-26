@@ -1,0 +1,5 @@
+name=DOOMDate
+author=id Software, Daivuk, Fabian Hartmann
+description=A DOOM port for the Playdate handheld gaming console, based on https://github.com/Daivuk/PureDOOM
+bundleID=pizza.rotten.doomdate
+imagePath=
