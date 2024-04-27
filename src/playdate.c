@@ -1,6 +1,7 @@
 #include "pd_api.h"
 
 #include "playdate_gfx.h"
+#include "playdate_input.h"
 #include "playdate_sys.h"
 
 PlaydateAPI* playdate;
@@ -27,6 +28,7 @@ int eventHandler(PlaydateAPI* pd, PDSystemEvent event, uint32_t arg)
 
 static int update(void* userdata)
 {
+    handleInputs(playdate);
     doom_update();
     refreshScreen();
 #if SHOW_FPS
