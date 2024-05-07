@@ -12,10 +12,10 @@ int eventHandler(PlaydateAPI* pd, PDSystemEvent event, uint32_t arg)
 {
     (void)arg;
 
-    if ( event == kEventInit )
+    if ( event == kEventInit)
     {
         playdate = pd;
-        registerPlaydateSysFunctions(playdate);
+        registerPlaydateSysFunctions();
         doom_init(1, NULL, 0);
         playdate->system->setUpdateCallback(update, playdate);
     }

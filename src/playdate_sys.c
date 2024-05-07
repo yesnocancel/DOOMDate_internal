@@ -5,12 +5,10 @@
 
 #include "playdate_sys.h"
 
-PlaydateAPI* playdate;
+extern PlaydateAPI* playdate;
 
-void registerPlaydateSysFunctions(PlaydateAPI* pd)
+void registerPlaydateSysFunctions()
 {
-    playdate = pd;
-
     doom_set_print(playdate_printfn);
     doom_set_malloc(playdate_malloc, playdate_free);
     doom_set_file_io(playdate_fopen, playdate_fclose, playdate_read, playdate_write, playdate_seek, playdate_tell, playdate_eof);
@@ -121,6 +119,3 @@ void playdate_get_time(int* sec, int* usec)
     *sec = timeSec;
     *usec = timeUsec;
 }
-
-
-
