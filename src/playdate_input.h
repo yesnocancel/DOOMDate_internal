@@ -8,6 +8,6 @@
 
 #include "pd_api.h"
 
-void handleInputs(PlaydateAPI* playdate);
+void handleInputs(void);
 
 #endif //DOOMDATE_PLAYDATE_INPUT_H

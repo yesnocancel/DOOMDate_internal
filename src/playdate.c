@@ -28,7 +28,7 @@ int eventHandler(PlaydateAPI* pd, PDSystemEvent event, uint32_t arg)
 
 static int update(void* userdata)
 {
-    handleInputs(playdate);
+    handleInputs();
     doom_update();
     refreshScreen();
 #if SHOW_FPS

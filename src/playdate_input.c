@@ -4,10 +4,11 @@
 //
 
 #include "playdate_input.h"
-
 #include "DOOM.h"
 
-void handleInputs(PlaydateAPI* playdate) {
+extern PlaydateAPI* playdate;
+
+void handleInputs(void) {
     PDButtons current;
     PDButtons pushed;
     PDButtons released;
