@@ -8,7 +8,7 @@
 
 #include "pd_api.h"
 
-void initPlaydateGraphics(PlaydateAPI* pd);
+void initPlaydateGraphics(void);
 void refreshScreen(void);
 
 #endif //DOOMDATE_PLAYDATE_GFX_H

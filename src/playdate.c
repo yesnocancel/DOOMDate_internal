@@ -17,7 +17,7 @@ int eventHandler(PlaydateAPI* pd, PDSystemEvent event, uint32_t arg)
     {
         playdate = pd;
         registerPlaydateSysFunctions();
-        initPlaydateGraphics(playdate);
+        initPlaydateGraphics();
         doom_init(1, NULL, 0);
         playdate->system->setUpdateCallback(update, playdate);
     }
